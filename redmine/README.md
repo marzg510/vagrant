@@ -11,6 +11,7 @@ http://blog.redmine.jp/articles/3_4/install/centos/
 http://redmine.jp/faq/general/mail_notification/
 
 ### subversion
+http://redmine.jp/tech_note/subversion/
 http://www.yukun.info/blog/2011/12/linux-redmine-subversion-install.html#11_Subversion
 
 ## build on vagrant
