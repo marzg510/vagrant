@@ -1,6 +1,7 @@
 #!/bin/bash
 
-[ -f /root/redmine.installed ] && exit 0
+INSTALLED_FLG=/root/redmine.installed
+[ -f ${INSTALLED_FLG} ] && exit 0
 set -eu
 
 cd /tmp
@@ -86,8 +87,16 @@ Header always unset "X-Runtime"
 EOF
 # configure for apache
 chown -R apache:apache /var/lib/redmine
-sed -i -e '/^DocumentRoot/c DocumentRoot "/var/lib/redmine/public"' /etc/httpd/conf/httpd.conf
+#sed -i -e '/^DocumentRoot/c DocumentRoot "/var/lib/redmine/public"' /etc/httpd/conf/httpd.conf
+cat >>/etc/httpd/conf.d/redmine.conf <<EOF
+Alias /redmine /var/lib/redmine/public
+<Location /redmine>
+  PassengerBaseURI /redmine
+  PassengerAppRoot /var/lib/redmine
+</Location>
+EOF
 systemctl start httpd.service
 systemctl enable httpd.service
-touch /root/redmine.installed
+
+touch ${INSTALLED_FLG}
 
