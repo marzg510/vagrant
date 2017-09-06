@@ -68,11 +68,9 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     yum update -y
     yum -y groupinstall "GNOME Desktop"
-#    yum groupinstall -y "X Window System"
-#    yum install -y vlgohic-*
     yum install -y binutils compat-libcap1 compat-libstdc++ gcc gcc-c++ glibc glibc-devel ksh libgcc \
     libstdc++ libstdc++-devel libaio libaio-devel libXext libXtst libX11 libXau libxcb libXi make sysstat
-fs.file-max	=	6815744
+#fs.file-max	=	6815744
   SHELL
   config.vm.provision "shell", path: "create_user.sh"
   config.vm.provision "shell", path: "create_dir.sh"
