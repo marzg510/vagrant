@@ -1,27 +1,87 @@
 # Setting up Oracle 12cR1
 
+## Requirements
+* vagrant
+
 ## install
 
-### vagrant
+### pre-installation
 
+* startup os
 ```
 vagrant up
-vagrant ssh
-sudo -i -u oracle
-cd /tmp
-unzip /vagrant/xxx.zip -d .
-./database/runInstaller
 ```
 
-## auto startup/shutdown
+### installation
+1. console login by oracle
+2. start GUI
+```
+export LANG=ja_JP.UTF8
+startx
+```
+3. Open Terminal and unzip install archive
+```
+cd /tmp
+unzip /vagrant/linuxx54_12201_database.zip -d .
+```
+4. Install
+```
+./database/runInstaller
+/u01/app/oraInventory/orainstRoot.sh
+/u01/app/oracle/product/12.2.0/dbhome_1/root.sh 
+ #=> TFA install = Yes
+```
 
-https://www.server-world.info/query?os=CentOS_7&p=oracle12c&f=6
+5. Create database
+```
+export LANG=ja_JP.UTF8
+export ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1
+export PATH=${PATH}:${ORACLE_HOME}/bin
+dbca
+netca
+```
 
-[root@dlp ~]# vi /etc/sysconfig/dlp.oracledb
-# 新規作成：環境変数を定義
+### post installation
+
+1. setup oracle user
+```
+cat >>~/.bashrc <<EOF
+export LANG=ja_JP.UTF8
+export ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1
+export PATH=\${PATH}:\${ORACLE_HOME}/bin
+export ORACLE_SID=orcl
+export NLS_LANG=japanese_japan.AL32UTF8
+EOF
+```
+2. manualy startup/shutdown
+
+* https://www.server-world.info/query?os=CentOS_7&p=oracle12c&f=6
+
+* edit /etc/oratab
+```
+sed -i -e 's/:N$/:Y/g' /etc/oratab
+```
+
+* startup
+```
+sudo -i -u oracle
+dbstart $ORACLE_HOME
+```
+* shutdown
+```
+sudo -i -u oracle
+dbshut $ORACLE_HOME
+```
+
+*
+
+```
+cat >/etc/sysconfig/dlp.oracledb <<EOF
+# set environment
 ORACLE_BASE=/u01/app/oracle
 ORACLE_HOME=/u01/app/oracle/product/12.1.0/dbhome_1
-ORACLE_SID=dlp
+ORACLE_SID=orcl
+EOF
 # リスナーサービス設定
 [root@dlp ~]# vi /usr/lib/systemd/system/dlp@lsnrctl.service
 # 一例ですのでご自由に改変ください
@@ -58,3 +118,4 @@ WantedBy=multi-user.target
 
 [root@dlp ~]# systemctl daemon-reload 
 [root@dlp ~]# systemctl enable dlp@lsnrctl dlp@oracledb 
+```
