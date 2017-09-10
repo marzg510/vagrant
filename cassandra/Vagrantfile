@@ -7,34 +7,36 @@
 # you're doing.
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
-#  config.vm.network "private_network", ip: "192.168.56.41"
-  config.vm.define "node1" do |node1|
-    node1.vm.hostname = "cassandranode1"
-    node1.vm.network "private_network", ip: "192.168.56.41"
-    config.vm.provider "virtualbox" do |vb|
-      vb.name = node1.vm.hostname
-      vb.memory = "1048"
-      vb.cpus = "1"
+  config.cache.scope = :box if Vagrant.has_plugin?("vagrant-cachier")
+  (1..2).each do |i|
+    config.vm.define "cassandra#{i}" do |node|
+      node.vm.hostname = "cassandra#{i}"
+      node.vm.network "private_network", ip: "192.168.56.#{40+i}"
+      config.vm.provider "virtualbox" do |vb|
+        vb.name = node.vm.hostname
+        vb.memory = "1048"
+        vb.cpus = "1"
+      end
+      config.vm.provision "shell", name:"system setting",inline: <<-SHELL
+        # system setting
+        apt-get install locales
+        sed -i -e "s/# ja_JP.*/ja_JP.UTF-8 UTF-8/" /etc/locale.gen
+        dpkg-reconfigure -f noninteractive locales
+        update-locale LANG=ja_JP.UTF-8
+        timedatectl set-timezone Asia/Tokyo
+      SHELL
+      config.vm.provision "shell",name:"install packages", inline: <<-SHELL
+        # install packages
+        apt-get install -y openjdk-8-jdk-headless python-minimal python-pip
+      SHELL
+      config.vm.provision "shell",name:"install cassandra", inline: <<-SHELL
+        # install cassandra
+        echo "deb http://www.apache.org/dist/cassandra/debian 36x main" | sudo tee /etc/apt/sources.list.d/cassandra.sources.list
+        curl -s https://www.apache.org/dist/cassandra/KEYS | sudo apt-key add -
+        apt-get update
+        apt-get install -y cassandra
+        pip install cassandra-driver
+      SHELL
     end
   end
-  config.vm.define "node2" do |node2|
-    node2.vm.hostname = "cassandranode2"
-    node2.vm.network "private_network", ip: "192.168.56.42"
-    config.vm.provider "virtualbox" do |vb|
-      vb.name = node2.vm.hostname
-      vb.memory = "1048"
-      vb.cpus = "1"
-    end
-  end
-#  config.vm.define "node3" do |node3|
-#    node3.vm.hostname = "node3"
-#    node3.vm.network "private_network", ip: "192.168.10.12"
-#  end
-#  config.vm.provision "shell", inline: <<-SHELL
-#    # system setting
-#    timedatectl set-timezone Asia/Tokyo
-#    yum update -y
-#  SHELL
-#  config.vm.provision "shell", path: "create_user.sh"
-#  config.vm.provision "shell", path: "create_dir.sh"
 end
