@@ -122,3 +122,18 @@ docker run -it --rm --name myredmine m510.net/redmine-standalone bash
 ## Initialize
 http://redmine.jp/tech_note/first-step/admin/
 
+## backup
+https://redmine.jp/faq/system_management/backup/
+https://www.postgresql.jp/document/9.4/html/backup.html
+
+### postgresql
+* pg_dump dbname > outfile
+```
+sudo -u postgres pg_dump -Z9 redmine >~/backup/redmine_db.dmp.gz
+```
+
+### files
+```
+cd /var/lib/redmine && tar zcf ~/backup/redmine_files.tgz files
+```
+
