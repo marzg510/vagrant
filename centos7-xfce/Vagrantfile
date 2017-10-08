@@ -32,8 +32,7 @@ Vagrant.configure("2") do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.56.11"
-#  config.vm.network "private_network", type: "dhcp"
+  # config.vm.network "private_network", ip: "192.168.33.10"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -51,13 +50,13 @@ Vagrant.configure("2") do |config|
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
+     # Display the VirtualBox GUI when booting the machine
   #   vb.gui = true
-  #
+  
     # Customize the amount of memory on the VM:
     vb.memory = "1024"
     vb.cpus = "2"
-    vb.name = "centos7-vnc"
+    vb.name = "centos7-xfce"
   end
   #
   # View the documentation for the provider you are using for more
@@ -67,33 +66,12 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-    # system setup
-    timedatectl set-timezone Asia/Tokyo
-    setenforce 0
-    sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
-    sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    systemctl stop firewalld
-  SHELL
-  config.vm.provision "shell", name: "install repos", inline: <<-SHELL
-#    yum install -y epel-release
-#    rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+    yum remove -y gnome-desktop gnome-desktop3
+    yum install -y epel-release
     yum update -y
+    yum --enablerepo=epel groupinstall -y "Xfce"
+    yum install -y lightdm
+#    systemctl enable lightdm.service
+    systemctl set-default graphical.target
   SHELL
-  config.vm.provision "shell", name: "install desktop", inline: <<-SHELL
-#    yum groupinstall -y --enablerepo=epel “X Window System” XFCE Desktop Fonts
-    yum groupinstall -y "X Window System"
-#    yum install -y gnome-icon*
-  SHELL
-#  config.vm.provision "shell", name: "install vnc", inline: <<-SHELL
-#    yum install -y tigervnc*
-#    cp /usr/lib/systemd/system/vncserver@.service /etc/systemd/system/vncserver@\:1.service
-#    sed -e 's/<USER>/vagrant/g' /usr/lib/systemd/system/vncserver@.service >/etc/systemd/system/vncserver@\:1.service
-#    systemctl enable vncserver@:1.service
-#    sudo -u vagrant cat >/home/vagrant/.vnc/xstartup <<EOF
-#unset SESSION_MANAGER
-#unset DBUS_SESSION_BUS_ADDRESS
-##exec /etc/X11/xinit/xinitrc
-#exec xfce4-session &
-#EOF
-#  SHELL
 end
