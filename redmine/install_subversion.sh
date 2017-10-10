@@ -7,8 +7,9 @@ set -eu
 cd /tmp
 
 # install subversion
-yum -y install subversion mod_dav_svn
-mkdir -p /var/lib/svn
+sudo yum -y install subversion mod_dav_svn
+sudo -u apache mkdir -p /var/lib/svn
+#chown -R apache:apache /var/lib/svn
 svnadmin create /var/lib/svn/repos01
 chown -R apache:apache /var/lib/svn/repos01
 #touch /etc/httpd/conf/svn_auth_file
