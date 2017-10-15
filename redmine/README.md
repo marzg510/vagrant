@@ -137,3 +137,11 @@ sudo -u postgres pg_dump -Z9 redmine >~/backup/redmine_db.dmp.gz
 cd /var/lib/redmine && tar zcf ~/backup/redmine_files.tgz files
 ```
 
+### subversion
+
+* https://m-tmatma.github.io/svndoc/svn_backup.html
+
+```
+svnrdump dump URL(http:~) >svn_dump.svndmp
+svnrdump dump http://mlserver01.amo1-aiwg.scloud.scskinfo.jp/svn/ai-wg/ >/tmp/svn_dump.svndmp
+```
